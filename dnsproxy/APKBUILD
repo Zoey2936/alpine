@@ -1,0 +1,55 @@
+# Contributor: Zoey <zoey@z0ey.de>
+maintainer="Zoey <zoey@z0ey.de>"
+pkgname=dnsproxy
+pkgver=0.86.0
+pkgrel=0
+pkgdesc="Simple DNS proxy with DoH, DoT, DoQ and DNSCrypt support"
+url="https://github.com/AdguardTeam/dnsproxy"
+arch="all"
+license="Apache-2.0"
+options="net !check" # net for go
+depends="ca-certificates-bundle"
+makedepends="go"
+subpackages="$pkgname-openrc"
+install="$pkgname.pre-install"
+source="
+	$pkgname-$pkgver.tar.gz::https://github.com/AdguardTeam/dnsproxy/archive/v$pkgver.tar.gz
+	dnsproxy.initd
+	dnsproxy.confd
+	"
+pkgusers="dnsproxy"
+pkggroups="dnsproxy"
+
+prepare() {
+	default_prepare
+
+	# do not force a specific minor go version
+	sed -Ei 's/^(go \d+\.\d+)\.\d*/\1.0/' go.mod
+
+	go mod download
+}
+
+build() {
+	go build -o bin/dnsproxy -trimpath -ldflags "-s -w
+		-X github.com/AdguardTeam/golibs/version.version=v$pkgver
+		-X github.com/AdguardTeam/golibs/version.committime=${SOURCE_DATE_EPOCH:-$(date +%s)}
+		"
+}
+
+check() {
+	go test ./...
+}
+
+package() {
+	install -Dm755 bin/dnsproxy -t "$pkgdir"/usr/bin/
+	install -Dm640 -g dnsproxy config.dist.yaml "$pkgdir"/etc/dnsproxy/config.yaml
+
+	install -Dm755 "$srcdir"/$pkgname.initd "$pkgdir"/etc/init.d/$pkgname
+	install -Dm644 "$srcdir"/$pkgname.confd "$pkgdir"/etc/conf.d/$pkgname
+}
+
+sha512sums="
+83aab5c7b7daf6e1bd800c16b92e7bde428caa39204273f7b502f04220149871889ea298a6fdc2dea87c2da29547603bdf12eccfb2be5eb080377516d11e929b  dnsproxy-0.86.0.tar.gz
+99702953596202eb1506769627104f5636c639952981a773882f1c3777ea97ec438818f2ba969325b70dbeb45829741ad0919887ccf66686a3407a4e55bdd711  dnsproxy.initd
+01df17b72508fe1cfcab7c7986c5bfdd19037dcbe4141bf78f85e9b2ca192d62512b0b8a6f1b239e2e63cbe8979163e9690600e0c8f51b7bd4628106e6868e9f  dnsproxy.confd
+"

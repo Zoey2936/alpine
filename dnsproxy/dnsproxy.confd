@@ -1,0 +1,11 @@
+# configuration for /etc/init.d/dnsproxy
+
+command_user="dnsproxy:dnsproxy" # user:group
+supervisor=supervise-daemon
+
+cfgfile="/etc/dnsproxy/config.yaml"
+#extra_args="--verbose"
+
+#logdir="/var/log/dnsproxy"
+#output_log="$logdir/output.log"
+#error_log="$logdir/error.log"
