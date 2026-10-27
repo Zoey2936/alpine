@@ -3,7 +3,7 @@
 maintainer="Zoey <zoey@z0ey.de>"
 pkgname=adguardhome
 pkgver=0.107.79
-pkgrel=0
+pkgrel=1
 pkgdesc="Network-wide ads & trackers blocking DNS server"
 url="https://github.com/AdguardTeam/Adguardhome"
 arch="all"
@@ -19,6 +19,7 @@ source="
 	$pkgname-frontend-$pkgver.tar.gz::https://github.com/AdguardTeam/AdGuardHome/releases/download/v$pkgver/AdGuardHome_frontend.tar.gz
 	adguardhome.initd
 	adguardhome.confd
+	adguardhome.logrotate
 	cap_check.patch
 	"
 builddir="$srcdir/AdGuardHome-$pkgver"
@@ -55,6 +56,7 @@ package() {
 
 	install -Dm755 "$srcdir"/$pkgname.initd "$pkgdir"/etc/init.d/$pkgname
 	install -Dm644 "$srcdir"/$pkgname.confd "$pkgdir"/etc/conf.d/$pkgname
+	install -Dm644 "$srcdir"/$pkgname.logrotate "$pkgdir"/etc/logrotate.d/$pkgname
 }
 
 sha512sums="
@@ -62,5 +64,6 @@ sha512sums="
 f753cea4d80d29970534d2465da23434d3a4ce8deeb6fd59d2d05da520f11de717ca19d1efaebb0755be6e2dae14d770f5172691a22c0ee0048e5b29a17837fa  adguardhome-frontend-0.107.79.tar.gz
 b17e8584c9aeb211abec8a1960cb4ad702f1c1c53f15b336a6f93dd4a2fc8439c2e9bace44be7a0c3f3b6db6bbb346399130367f29a145bb6c70bc577db1284c  adguardhome.initd
 734bda5a9cca67062ca85c2b7f278e6fa6698a3a7ccddfb1194b4784d70183c368fcf37e5f847ddc4cb52bba3414f62b0d7fc0ccb61c2fe82729509063f72d49  adguardhome.confd
+d0f6b8f409ca8ef574f30f2b2f9d0224124685d6e831b612ae5562c56d4da0249e379d6db29819f4fe2cd5c5d5f4b3bed2a16f55069a4d0d44dd7c29c4e4daa0  adguardhome.logrotate
 b0dde70e9fc1ee40916233d884de2d8fae1a29b6036160334497b02ba7061e009b53b98cc49aae5dfde93d6226657a73ef833e2452e91a41f54bf74fdb8dbcb3  cap_check.patch
 "

@@ -2,7 +2,7 @@
 maintainer="Zoey <zoey@z0ey.de>"
 pkgname=dnsproxy
 pkgver=0.86.0
-pkgrel=0
+pkgrel=1
 pkgdesc="Simple DNS proxy with DoH, DoT, DoQ and DNSCrypt support"
 url="https://github.com/AdguardTeam/dnsproxy"
 arch="all"
@@ -16,6 +16,7 @@ source="
 	$pkgname-$pkgver.tar.gz::https://github.com/AdguardTeam/dnsproxy/archive/v$pkgver.tar.gz
 	dnsproxy.initd
 	dnsproxy.confd
+	dnsproxy.logrotate
 	"
 pkgusers="dnsproxy"
 pkggroups="dnsproxy"
@@ -46,10 +47,12 @@ package() {
 
 	install -Dm755 "$srcdir"/$pkgname.initd "$pkgdir"/etc/init.d/$pkgname
 	install -Dm644 "$srcdir"/$pkgname.confd "$pkgdir"/etc/conf.d/$pkgname
+	install -Dm644 "$srcdir"/$pkgname.logrotate "$pkgdir"/etc/logrotate.d/$pkgname
 }
 
 sha512sums="
 83aab5c7b7daf6e1bd800c16b92e7bde428caa39204273f7b502f04220149871889ea298a6fdc2dea87c2da29547603bdf12eccfb2be5eb080377516d11e929b  dnsproxy-0.86.0.tar.gz
 99702953596202eb1506769627104f5636c639952981a773882f1c3777ea97ec438818f2ba969325b70dbeb45829741ad0919887ccf66686a3407a4e55bdd711  dnsproxy.initd
 01df17b72508fe1cfcab7c7986c5bfdd19037dcbe4141bf78f85e9b2ca192d62512b0b8a6f1b239e2e63cbe8979163e9690600e0c8f51b7bd4628106e6868e9f  dnsproxy.confd
+63e8a3463009c31a351070296740f773530d3d21d34ae31983c4be86a6daa071850263e53e3e4fec0c84fc73707637c8c21e65a35549001f2d1291bbe3b4453f  dnsproxy.logrotate
 "

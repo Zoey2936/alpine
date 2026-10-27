@@ -1,0 +1,6 @@
+/var/log/dnsproxy/*.log {
+	su dnsproxy dnsproxy
+	copytruncate
+	missingok
+	notifempty
+}

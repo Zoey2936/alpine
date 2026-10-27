@@ -1,0 +1,6 @@
+/var/log/adguardhome/*.log {
+	su adguardhome adguardhome
+	copytruncate
+	missingok
+	notifempty
+}
