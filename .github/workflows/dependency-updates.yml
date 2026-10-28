@@ -1,0 +1,57 @@
+name: dependency-updates
+on:
+  push:
+    branches:
+      - develop
+  schedule:
+    - cron: "0 * * * *"
+  workflow_dispatch:
+permissions:
+  contents: write
+  pull-requests: write
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+defaults:
+  run:
+    shell: bash
+jobs:
+  version-updates:
+    name: ${{ matrix.name }}-update
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: adguardhome
+            repo: AdguardTeam/AdGuardHome
+          - name: dnsproxy
+            repo: AdguardTeam/dnsproxy
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: update ${{ matrix.name }} version
+        id: update
+        run: |
+          VER="$(
+          git ls-remote --tags --refs https://github.com/${{ matrix.repo }} \
+              | cut -d/ -f3 \
+              | grep "^v[0-9.]\+$" \
+              | sort -V \
+              | tail -1 \
+              | sed "s|^v||"
+          )"
+          OLD="$(sed -n "s|^pkgver=||p" ${{ matrix.name }}/APKBUILD)"
+          if [ "$VER" != "$OLD" ]; then
+            sed -i "s|^pkgver=.*|pkgver=$VER|" ${{ matrix.name }}/APKBUILD
+            docker run --rm -v "$PWD/${{ matrix.name }}:/apk" -w /apk alpine:3.24.3@sha256:be2656061b536c1883c4034790e21d0a09c5aaaf51968b89368a3c0371ea2c9a sh -ec "apk add -U abuild; abuild -F checksum"
+          fi
+          echo "compare=https://github.com/${{ matrix.repo }}/compare/v$OLD...v$VER" >> $GITHUB_OUTPUT
+          echo "version=$VER" >> $GITHUB_OUTPUT
+      - uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
+        with:
+          signoff: true
+          delete-branch: true
+          commit-message: update ${{ matrix.name }} version to ${{ steps.update.outputs.version }}
+          branch: update-${{ matrix.name }}-version
+          title: update ${{ matrix.name }} version to ${{ steps.update.outputs.version }}
+          body: ${{ steps.update.outputs.compare }}
