@@ -9,10 +9,25 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: false
 jobs:
+  packages:
+    runs-on: ubuntu-slim
+    permissions:
+      contents: read
+    outputs:
+      packages: ${{ steps.packages.outputs.packages }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - id: packages
+        run: echo "packages=$(jq -n -c '$ARGS.positional | map(rtrimstr("/"))' --args */)" >> $GITHUB_OUTPUT
+
   build-x86_64:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+    needs: packages
+    strategy:
+      matrix:
+        package: ${{ fromJSON(needs.packages.outputs.packages) }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: package
@@ -21,24 +36,29 @@ jobs:
           PACKAGER_PRIVKEY: /root/zoey2936.rsa
           REPODEST: /root/packages
         run: |
+          sed -i "s/^pkgrel=.*/pkgrel=${{ github.run_number }}/" ${{ matrix.package }}/APKBUILD
           docker run --rm -e ABUILD_PRIVKEY -e PACKAGER_PRIVKEY -e REPODEST -v "$PWD:/custom" -w /custom alpine:3.24.3@sha256:be2656061b536c1883c4034790e21d0a09c5aaaf51968b89368a3c0371ea2c9a sh -ec '
             apk add -U alpine-sdk
             printenv ABUILD_PRIVKEY > "$PACKAGER_PRIVKEY"
             openssl rsa -in "$PACKAGER_PRIVKEY" -pubout -out "$PACKAGER_PRIVKEY.pub"
             cp "$PACKAGER_PRIVKEY.pub" /etc/apk/keys/
-            for dir in */; do abuild -F -r -C "$dir"; done
+            abuild -F -r -C ${{ matrix.package }}
             mv "$REPODEST/${PWD##*/}" repo
             cp "$PACKAGER_PRIVKEY.pub" repo/
           '
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: x86_64
+          name: x86_64-${{ matrix.package }}
           path: repo
 
   build-aarch64:
     runs-on: ubuntu-26.04-arm
     permissions:
       contents: read
+    needs: packages
+    strategy:
+      matrix:
+        package: ${{ fromJSON(needs.packages.outputs.packages) }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: package
@@ -47,22 +67,23 @@ jobs:
           PACKAGER_PRIVKEY: /root/zoey2936.rsa
           REPODEST: /root/packages
         run: |
+          sed -i "s/^pkgrel=.*/pkgrel=${{ github.run_number }}/" ${{ matrix.package }}/APKBUILD
           docker run --rm -e ABUILD_PRIVKEY -e PACKAGER_PRIVKEY -e REPODEST -v "$PWD:/custom" -w /custom alpine:3.24.3@sha256:be2656061b536c1883c4034790e21d0a09c5aaaf51968b89368a3c0371ea2c9a sh -ec '
             apk add -U alpine-sdk
             printenv ABUILD_PRIVKEY > "$PACKAGER_PRIVKEY"
             openssl rsa -in "$PACKAGER_PRIVKEY" -pubout -out "$PACKAGER_PRIVKEY.pub"
             cp "$PACKAGER_PRIVKEY.pub" /etc/apk/keys/
-            for dir in */; do abuild -F -r -C "$dir"; done
+            abuild -F -r -C ${{ matrix.package }}
             mv "$REPODEST/${PWD##*/}" repo
             cp "$PACKAGER_PRIVKEY.pub" repo/
           '
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: aarch64
+          name: aarch64-${{ matrix.package }}
           path: repo
 
   deploy:
-    runs-on: ubuntu-slim
+    runs-on: ubuntu-latest
     permissions:
       pages: write
       id-token: write
@@ -75,6 +96,17 @@ jobs:
         with:
           path: repo
           merge-multiple: true
+      - name: index
+        env:
+          ABUILD_PRIVKEY: ${{ secrets.ABUILD_PRIVKEY }}
+          PACKAGER_PRIVKEY: /root/zoey2936.rsa
+        run: |
+          docker run --rm -e ABUILD_PRIVKEY -e PACKAGER_PRIVKEY -v "$PWD/repo:/repo" -w /repo alpine:3.24.3@sha256:be2656061b536c1883c4034790e21d0a09c5aaaf51968b89368a3c0371ea2c9a sh -ec '
+            apk add -U abuild
+            printenv ABUILD_PRIVKEY > "$PACKAGER_PRIVKEY"
+            cp *.pub /etc/apk/keys/
+            for arch in */; do (cd "$arch" && apk index --no-warnings -o APKINDEX.tar.gz --rewrite-arch "${arch%/}" *.apk && abuild-sign APKINDEX.tar.gz); done
+          '
       - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
           path: repo
