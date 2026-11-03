@@ -26,11 +26,10 @@ builddir="$srcdir/AdGuardHome-$pkgver"
 pkgusers="adguardhome"
 pkggroups="adguardhome"
 
+export GOTOOLCHAIN=auto
+
 prepare() {
 	default_prepare
-
-	# do not force a specific minor go version
-	sed -Ei 's/^(go \d+\.\d+)\.\d*/\1.0/' go.mod
 
 	# frontend pre-built files (symlink dont work)
 	rm -rf build/static
@@ -40,7 +39,7 @@ prepare() {
 }
 
 build() {
-	GOTOOLCHAIN=auto go build -o bin/adguardhome -trimpath -ldflags "-s -w
+	go build -o bin/adguardhome -trimpath -ldflags "-s -w
 		-X github.com/AdguardTeam/AdGuardHome/internal/version.version=v$pkgver
 		-X github.com/AdguardTeam/AdGuardHome/internal/version.channel=release
 		-X github.com/AdguardTeam/AdGuardHome/internal/version.committime=${SOURCE_DATE_EPOCH:-$(date +%s)}
