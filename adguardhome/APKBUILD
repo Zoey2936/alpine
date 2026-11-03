@@ -2,7 +2,7 @@
 # Contributor: tetsumaki <yd-alpine@tetsumaki.net>
 maintainer="Zoey <zoey@z0ey.de>"
 pkgname=adguardhome
-pkgver=0.107.79
+pkgver=0.107.80
 pkgrel=1
 pkgdesc="Network-wide ads & trackers blocking DNS server"
 url="https://github.com/AdguardTeam/Adguardhome"
@@ -60,8 +60,8 @@ package() {
 }
 
 sha512sums="
-9048c3e4693e993e3c382224f681c88c3baf3e48250ad290bcff68fc3c7974ff78053d50426f01bfc6e36caf5fc0e7d798ed0069bea20936f0d01e309346478e  adguardhome-0.107.79.tar.gz
-f753cea4d80d29970534d2465da23434d3a4ce8deeb6fd59d2d05da520f11de717ca19d1efaebb0755be6e2dae14d770f5172691a22c0ee0048e5b29a17837fa  adguardhome-frontend-0.107.79.tar.gz
+a030b938ba6361798129ffca93bc4e69345adb27dabc246a2d6313ec19764bfd7c147faeea5a9dfe398a531dcb57dc98505b061be22f7db503055f0c0c4bb045  adguardhome-0.107.80.tar.gz
+e7919b51c2d9b7302b3b18c92b27f0c98107c30d72832e6023c44f5682d3a373efd31b1eaae9b90e79297b6ce2c083bfe6d2de167259914f4071bb48e5688db3  adguardhome-frontend-0.107.80.tar.gz
 b17e8584c9aeb211abec8a1960cb4ad702f1c1c53f15b336a6f93dd4a2fc8439c2e9bace44be7a0c3f3b6db6bbb346399130367f29a145bb6c70bc577db1284c  adguardhome.initd
 734bda5a9cca67062ca85c2b7f278e6fa6698a3a7ccddfb1194b4784d70183c368fcf37e5f847ddc4cb52bba3414f62b0d7fc0ccb61c2fe82729509063f72d49  adguardhome.confd
 d0f6b8f409ca8ef574f30f2b2f9d0224124685d6e831b612ae5562c56d4da0249e379d6db29819f4fe2cd5c5d5f4b3bed2a16f55069a4d0d44dd7c29c4e4daa0  adguardhome.logrotate
