@@ -21,11 +21,10 @@ source="
 pkgusers="dnsproxy"
 pkggroups="dnsproxy"
 
+export GOTOOLCHAIN=auto
+
 prepare() {
 	default_prepare
-
-	# do not force a specific minor go version
-	sed -Ei 's/^(go \d+\.\d+)\.\d*/\1.0/' go.mod
 
 	go mod download
 }
