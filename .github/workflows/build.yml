@@ -37,7 +37,7 @@ jobs:
           REPODEST: /root/packages
         run: |
           sed -i "s/^pkgrel=.*/pkgrel=${{ github.run_number }}/" ${{ matrix.package }}/APKBUILD
-          docker run --rm -e ABUILD_PRIVKEY -e PACKAGER_PRIVKEY -e REPODEST -v "$PWD:/custom" -w /custom alpine:3.24.3@sha256:be2656061b536c1883c4034790e21d0a09c5aaaf51968b89368a3c0371ea2c9a sh -ec '
+          docker run --rm -e ABUILD_PRIVKEY -e PACKAGER_PRIVKEY -e REPODEST -v "$PWD:/custom" -w /custom alpine:3.24.4@sha256:93b41ef40b1677fce8fcc64ff4af09daddfacf5040afde618bc46c1e2d1cc7d4 sh -ec '
             apk add -U alpine-sdk
             printenv ABUILD_PRIVKEY > "$PACKAGER_PRIVKEY"
             openssl rsa -in "$PACKAGER_PRIVKEY" -pubout -out "$PACKAGER_PRIVKEY.pub"
@@ -68,7 +68,7 @@ jobs:
           REPODEST: /root/packages
         run: |
           sed -i "s/^pkgrel=.*/pkgrel=${{ github.run_number }}/" ${{ matrix.package }}/APKBUILD
-          docker run --rm -e ABUILD_PRIVKEY -e PACKAGER_PRIVKEY -e REPODEST -v "$PWD:/custom" -w /custom alpine:3.24.3@sha256:be2656061b536c1883c4034790e21d0a09c5aaaf51968b89368a3c0371ea2c9a sh -ec '
+          docker run --rm -e ABUILD_PRIVKEY -e PACKAGER_PRIVKEY -e REPODEST -v "$PWD:/custom" -w /custom alpine:3.24.4@sha256:93b41ef40b1677fce8fcc64ff4af09daddfacf5040afde618bc46c1e2d1cc7d4 sh -ec '
             apk add -U alpine-sdk
             printenv ABUILD_PRIVKEY > "$PACKAGER_PRIVKEY"
             openssl rsa -in "$PACKAGER_PRIVKEY" -pubout -out "$PACKAGER_PRIVKEY.pub"
@@ -101,7 +101,7 @@ jobs:
           ABUILD_PRIVKEY: ${{ secrets.ABUILD_PRIVKEY }}
           PACKAGER_PRIVKEY: /root/zoey2936.rsa
         run: |
-          docker run --rm -e ABUILD_PRIVKEY -e PACKAGER_PRIVKEY -v "$PWD/repo:/repo" -w /repo alpine:3.24.3@sha256:be2656061b536c1883c4034790e21d0a09c5aaaf51968b89368a3c0371ea2c9a sh -ec '
+          docker run --rm -e ABUILD_PRIVKEY -e PACKAGER_PRIVKEY -v "$PWD/repo:/repo" -w /repo alpine:3.24.4@sha256:93b41ef40b1677fce8fcc64ff4af09daddfacf5040afde618bc46c1e2d1cc7d4 sh -ec '
             apk add -U abuild
             printenv ABUILD_PRIVKEY > "$PACKAGER_PRIVKEY"
             cp *.pub /etc/apk/keys/
