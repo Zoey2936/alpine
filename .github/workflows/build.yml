@@ -105,7 +105,7 @@ jobs:
             apk add -U abuild
             printenv ABUILD_PRIVKEY > "$PACKAGER_PRIVKEY"
             cp *.pub /etc/apk/keys/
-            for arch in */; do (cd "$arch" && apk index --no-warnings -o APKINDEX.tar.gz --rewrite-arch "${arch%/}" *.apk && abuild-sign APKINDEX.tar.gz); done
+            for arch in */; do (cd "$arch" && apk index --no-warnings -o APKINDEX.tar.gz --rewrite-arch "${arch%/}" *.apk && abuild-sign APKINDEX.tar.gz && apk mkndx --sign-key "$PACKAGER_PRIVKEY" --pkgname-spec "${arch%/}/\${name}-\${version}.apk" -o Packages.adb *.apk); done
           '
       - uses: actions/upload-pages-artifact@v5.0.0
         with:
